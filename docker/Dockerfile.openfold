@@ -1,0 +1,15 @@
+# Build Dockerfile from openfold and push to ECR to be used a base image
+# https://github.com/aqlaboratory/openfold/blob/v1.0.1/Dockerfile
+FROM <aws_account_number>.dkr.ecr.<region>.amazonaws.com/openfold:v1.0.1
+
+## AWSCLI
+RUN apt-get update && apt-get install --no-install-recommends -y unzip
+RUN wget -q -P /opt/ https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip \
+    && unzip /opt/awscli-exe-linux-x86_64.zip -d /opt/ \
+    && /opt/aws/install
+    
+## SageMaker specific
+RUN pip3 install sagemaker-training --upgrade --no-cache-dir
+ENV PATH="/opt/ml/code:${PATH}"
+# this environment variable is used by the SageMaker PyTorch container to determine our user code directory.
+ENV SAGEMAKER_SUBMIT_DIRECTORY /opt/ml/code
